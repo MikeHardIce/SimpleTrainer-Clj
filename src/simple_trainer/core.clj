@@ -8,12 +8,15 @@
   (println "2 - Memorizing Words")
   (println "0 - Quit"))
 
+(defn out [& args]
+  (println args))
+
 (defn menu []
   (display-options)
   (let [selection (read-string (read-line))]
     (cond 
       (= selection 1) [(println "Starting \"Guessing Numbers\"...")
-                       (guess/start 100)
+                       (guess/start out 100)
                        (menu)]
       (= selection 2) [(println "Starting \"Memorizing Words\"...")
                        (menu)])))
