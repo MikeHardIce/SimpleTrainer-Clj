@@ -7,8 +7,8 @@
       (= guess rnd-number) (out "Yes thats it!")
       (> guess rnd-number) [(out "Choose a smaller number")
                             (guess-loop out rnd-number)]
-      :else [(out "Choose a bigger number")
-             (guess-loop out rnd-number)])))
+      :else (do (out "Choose a bigger number")
+                (guess-loop out rnd-number)))))
 
 (defn start [out max-number]
   (let [rnd-number (rand-int max-number)]
