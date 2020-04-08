@@ -1,21 +1,18 @@
-(ns simple-trainer.guessing)
+(ns simple-trainer.guessing
+  (:require [simple-trainer.mode :as m]))
 
-(defn guess-loop-handler [selection {:keys [rnd-number read out continue-with end-with]} ]
-  (let [guess (if (> (count selection) 0) (Integer/parseInt selection) 0)]
+(def number-to-guess (atom 0))
+
+(defmethod m/handle-input :guess [out input]
+  (let [guess (if (> (count input) 0) (Integer/parseInt input) 0)]
     (cond
-      (= guess rnd-number) (do 
-                              (out "Yes thats it!")
-                              (end-with))
-      (> guess rnd-number) (do  (out "Choose a smaller number")
-                                (continue-with read out rnd-number end-with))
-      :else (do (out "Choose a bigger number")
-                (continue-with read out rnd-number end-with)))))
+      (= guess @number-to-guess) (do (out "Yes thats it!")
+                                     (m/switch-mode :menu)
+                                     (out))
+      (> guess @number-to-guess) (out "Choose a smaller number")
+      :else (out "Choose a bigger number"))))
 
-(defn guess-loop [read-and-call out rnd-number end-with]
-  (read-and-call guess-loop-handler {:rnd-number rnd-number :read read-and-call :out out :continue-with guess-loop :end-with end-with}))
-    
-(defn start [read-and-call out max-number end-with]
-  (let [rnd-number (rand-int max-number)]
-    (println "Inside start guessing")
-    (out "Guess a number between 1 and " max-number)
-    (guess-loop read-and-call out rnd-number end-with)))
+(defn start [out max-number]
+    (swap! number-to-guess (fn [x] (rand-int max-number)))
+    (m/switch-mode :guess)
+    (out "Guess a number between 1 and " max-number))

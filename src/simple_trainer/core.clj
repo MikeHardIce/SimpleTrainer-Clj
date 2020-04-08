@@ -1,12 +1,13 @@
 (ns simple-trainer.core
+  (:require [simple-trainer.mode :as m])
   (:require [simple-trainer.guessing :as guess])
-  ;;(:require [simple-trainer.memorize-words :as memo])
+  (:require [simple-trainer.memorize-words :as memo])
   (:require [seesaw.core :as seesaw])
   (:gen-class))
 
 (def title (seesaw/label :text "Menu"))
 
-(def main (seesaw/text :editable? true :multi-line? true :text ""))
+(def main (seesaw/text :editable? false :multi-line? true :text ""))
 
 (def input (seesaw/text ""))
 
@@ -22,49 +23,37 @@
                           :width 650
                           :height 550
                           :on-close :exit))
-(defn display-options []
-  (seesaw/config! main :text "Here are your options:
-                                  1 - Guessing Numbers
-                                  2 - Memorizing Words
-                                  0 - Quit"))
 
 (defn out [& args]
-  (println (str "Write to main: " (apply str args)))
-  (seesaw/config! main :text (apply str args)))
+  (let [tmp (apply str args)
+       output (if (> (count tmp) 0) tmp "Here are your options:
+                                          1 - Guessing Numbers
+                                          2 - Memorizing Words
+                                          0 - Quit")]
+      (seesaw/config! main :text output)))
 
-(defn read-hook 
-  ([fn-continue-with] (read-hook fn-continue-with {}))
-  ([fn-continue-with params] 
-   (seesaw/listen enter :action (fn [ctrl]
-                                  (let [value (seesaw/config input :text)
-                                       sanitized (if (empty? value) 0 value)]
-                                    (do 
-                                      (println (str "Inside Read-hook: " value)))
-                                      (fn-continue-with sanitized params))))))
+(defn display-options []
+  (out))
 
-(defn handle-selection [selection {:keys [continue-with]}]
-  (let [choice (Integer/parseInt selection)]
+(defmethod m/handle-input :menu [out input]
+  (let [choice (Integer/parseInt input)]
     (cond
-      (= choice 1) (do 
-                      (println "Inside handle-selection")
-                      (guess/start read-hook out 100 continue-with))
-        ;;(= selection 2) [(memo/start read-hook out})
-        ;;                 (continue-with)]))
-        :else (System/exit 0))))
-                
-  
-    
+      (= choice 1) (guess/start out 100)
+      (= choice 2) (memo/start out)
+      :else (System/exit 0))))
 
 (defn menu []
-  (display-options)
-  (println "Inside menu")
-  (read-hook handle-selection {:continue-with menu}))
+  (m/switch-mode :menu)
+  (display-options))
 
 (defn -main 
   "Starts the simple trainer"
   [& args]
-  ;;(seesaw/show! window)
   (seesaw/invoke-later 
     (-> window
-      seesaw/show!))
-    (menu))
+      seesaw/show!))  
+  (menu)
+  (seesaw/listen enter :action (fn [e]
+                                (let [value (seesaw/config input :text)
+                                    sanitized (if (empty? value) 0 value)]
+                                    (m/handle-input out sanitized)))))
