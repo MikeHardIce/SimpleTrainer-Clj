@@ -46,6 +46,11 @@
   (m/switch-mode :menu)
   (display-options))
 
+(defn handle-click [e]
+  (let [value (seesaw/config input :text)
+      sanitized (if (empty? value) 0 value)]
+      (m/handle-input out sanitized)))
+
 (defn -main 
   "Starts the simple trainer"
   [& args]
@@ -53,7 +58,6 @@
     (-> window
       seesaw/show!))  
   (menu)
-  (seesaw/listen enter :action (fn [e]
-                                (let [value (seesaw/config input :text)
-                                    sanitized (if (empty? value) 0 value)]
-                                    (m/handle-input out sanitized)))))
+  (seesaw/listen enter :action handle-click)
+  (seesaw/listen input :key-typed (fn [e]
+                                      (when (= \newline (.getKeyChar e)) (handle-click e)))))
