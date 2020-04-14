@@ -30,7 +30,8 @@
                                           1 - Guessing Numbers
                                           2 - Memorizing Words
                                           0 - Quit")]
-      (seesaw/config! main :text output)))
+      (seesaw/config! main :text output))
+      (seesaw/request-focus! input))
 
 (defn display-options []
   (out))
