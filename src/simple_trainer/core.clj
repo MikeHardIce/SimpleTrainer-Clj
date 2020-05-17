@@ -2,6 +2,7 @@
   (:require [simple-trainer.mode :as m])
   (:require [simple-trainer.guessing :as guess])
   (:require [simple-trainer.memorize-words :as memo])
+  (:require [simple-trainer.sequences :as se])
   (:require [seesaw.core :as seesaw])
   (:gen-class))
 
@@ -29,6 +30,7 @@
        output (if (> (count tmp) 0) tmp "Here are your options:
                                           1 - Guessing Numbers
                                           2 - Memorizing Words
+                                          3 - Guessing Sequences
                                           0 - Quit")]
       (seesaw/config! main :text output))
       (seesaw/request-focus! input))
@@ -41,6 +43,7 @@
     (cond
       (= choice 1) (guess/start out 100)
       (= choice 2) (memo/start out)
+      (= choice 3) (se/start out 13)
       :else (System/exit 0))))
 
 (defn menu []
