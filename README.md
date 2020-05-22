@@ -1,3 +1,3 @@
 # simple-trainer
 
-Little console application to guess random numbers or to memorize words. This is to get familiar with Clojure.
+Console (now gui using seesaw) application to guess random numbers or to memorize words and perhaps other stuff.
